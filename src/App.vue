@@ -1,16 +1,51 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div class="modal" :style="style" >
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div id="modal"></div>
+    </div>
+    <button
+      class="modal-close is-large"
+      @click="closeSignUp"
+    ></button>
+  </div>
+  <!-- "section" and "container" are Bulma-specific classes! -->
+  <section class="section">
+    <div class="container">
+      <Navbar />
+      <router-view />
+    </div>
+  </section>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import { computed, defineComponent, ref } from 'vue';
+import Navbar from './components/Navbar.vue';
+import Signup from './components/Signup.vue';
+import { useModal } from './useModal';
 
 export default defineComponent({
   name: 'App',
   components: {
-    HelloWorld
+    Navbar,
+    Signup,
+},
+
+  setup() {
+    const modal = useModal();
+
+    const style = computed(() => {
+      return {
+        display: modal.show.value ? 'block' : 'none',
+      };
+    });
+
+    return {
+      style,
+      closeSignUp: () => {
+        modal.hideModal()
+      }
+    }
   }
 });
 </script>
@@ -20,7 +55,6 @@ export default defineComponent({
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
   margin-top: 60px;
 }
