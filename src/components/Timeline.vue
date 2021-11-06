@@ -57,18 +57,17 @@ export default defineComponent({
         throw Error(`post with id of ${id} was not found!`);
       }
       return acc.concat(thePost);
-    }, []);
+    }, []).sort((a, b) => b.created.diff(a.created));
+    // the .sort() above ensures all the posts are displayed in chronological order
 
     const posts = computed(() => {
       // recomputes output when the value of a ref or reactive changes
       return allPosts.filter(post => {
         if (currentPeriod.value === 'Today') {
           return post.created.isAfter(moment().subtract(1, 'days'));
-        }
-        if (currentPeriod.value === 'This Week') {
+        } else if (currentPeriod.value === 'This Week') {
           return post.created.isAfter(moment().subtract(1, 'weeks'));
-        }
-        if (currentPeriod.value === 'This Month') {
+        } else if (currentPeriod.value === 'This Month') {
           return post.created.isAfter(moment().subtract(1, 'months'));
         }
       });

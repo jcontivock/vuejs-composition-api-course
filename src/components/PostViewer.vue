@@ -2,16 +2,57 @@
   <div class="columns">
     <div class="column" />
     <div class="column is-two-thirds">
-      <router-link
-        :to="`/posts/${post.id}/edit`"
-        class="button is-link is-rounded"
-        v-if="canEdit"
-        data-test="can-edit"
-      >
-        Edit
-      </router-link>
-      <h1>{{ post.title }}</h1>
-      <div v-html="post.html" />
+      <div class="card">
+        <header class="card-header" v-if="canEdit">
+          <p class="card-header-title"/>
+          <!--
+          <button class="card-header-icon" aria-label="more options">
+            <span class="icon">
+              <i class="fas fa-angle-down" aria-hidden="true"></i>
+            </span>
+          </button>
+          -->
+          <router-link
+            :to="`/posts/${post.id}/edit`"
+            class="button is-link is-rounded card-header-icon"
+            v-if="canEdit"
+            data-test="can-edit"
+          >
+            Edit
+          </router-link>
+          <router-link
+            :to="`/posts/${post.id}/delete`"
+            class="button is-link is-rounded card-header-icon is-danger is-light"
+            v-if="canEdit"
+            data-test="can-delete"
+          >
+            Delete
+          </router-link>
+        </header>
+        <div class="card-content">
+          <div class="media">
+            <div class="media-content">
+              <p class="title is-4">{{ post.title }}</p>
+              <p class="subtitle is-6">
+                Created on
+                <time :datetime="post.created.format('YYYY-MM-DDTHH:mm:SSSZ')">
+                {{post.created.format('LLL')}}
+                </time>
+                <br/>
+                by @{{postAuthor.username}}
+              </p>
+            </div>
+          </div>
+
+          <div class="content">
+            <article class="message">
+              <div class="message-body">
+                <div v-html="post.html" />
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="column" />
   </div>
@@ -40,11 +81,19 @@ export default defineComponent({
           throw Error(`Post with id: ${id} was not found!`);
       }
 
+      const postAuthor = {
+        id: '-1',
+        username: 'unknown',
+        ...store.getState().authors.all.get(post.authorId)
+      };
+
       const canEdit = post.authorId === store.getState().authors.currentUserId;
+      // (<HTMLTimeElement> document.getElementById('postCreated')).dateTime = post.created.format();
 
       return {
           canEdit,
           post,
+          postAuthor,
       }
   },
 });

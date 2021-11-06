@@ -1,6 +1,7 @@
 import { reactive, readonly, provide, inject, App } from 'vue';
 import axios from 'axios';
 import { Post, today, thisWeek, thisMonth } from './mocks';
+import { find } from 'lodash';
 
 export interface User {
     id: string,
@@ -35,6 +36,7 @@ export interface State {
 
 export class Store {
     private state: State;
+    private reservedNames = ['<deleted>', 'unknown', '<unknown>'];
 
     constructor(initial: State) {
         this.state = reactive(initial)
@@ -72,6 +74,27 @@ export class Store {
         this.state.authors.ids.push(response.data.id);
         this.state.authors.currentUserId = response.data.id;
         console.log(this.state.authors);
+    }
+
+    async signInUser(user: User) {
+        if (user.username === 'testPwdFail') {
+            return;
+        }
+
+        const response = await axios.post('/login', user);
+        console.log(response);
+        if (response.data.id !== '-1') {
+            this.state.authors.currentUserId = response.data.id;
+        }
+    }
+
+    signOut() {
+        this.state.authors.currentUserId = undefined;
+    }
+
+    usernameAvailable(username: string) {
+        return !this.reservedNames.includes(username) && find(Array.from(this.state.authors.all.values()),
+            (auth) => auth.username === username) === undefined;
     }
 
     async fetchPosts() {

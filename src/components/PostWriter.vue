@@ -18,6 +18,7 @@
       <!-- the @input="handleInput" binding is how we achieve two-way binding to content -->
       <div class="column">
           <div
+            id="markdown"
             contenteditable
             ref="contentEditable"
             @input="handleInput"
@@ -167,5 +168,9 @@ export default defineComponent({
 <style>
 .column {
     overflow-y: auto;
+}
+
+#markdown {
+    white-space: pre-wrap;
 }
 </style>

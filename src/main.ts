@@ -53,6 +53,16 @@ axios.post = async (url: string, payload: any) => {
             data: author
         });
     }
+
+    if (url === '/login') {
+        await delay();
+        const author: Author = {
+            ...payload
+        };
+        return Promise.resolve<{data: Author}>({
+            data: author
+        });
+    }
 }
 
 // @ts-ignore

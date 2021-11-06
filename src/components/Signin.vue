@@ -22,8 +22,8 @@
         </button>
         <div
           class="notification is-danger is-light"
-          v-if="!signupStatus.valid">
-          {{signupStatus.message}}
+          v-if="signinStatus.valid === false">
+          {{signinStatus.message}}
         </div>
     </form>
 </template>
@@ -36,7 +36,7 @@ import { User, useStore } from '../store';
 import { useModal } from '../useModal';
 
 export default defineComponent({
-  name: 'Signup',
+  name: 'Signin',
   components: {
     FormInput,
   },
@@ -47,7 +47,7 @@ export default defineComponent({
 
     const username = ref('username');
     const usernameStatus = computed<Status>(() => {
-      return validate(username.value, [required(), length({min: 6, max: 16})]);
+      return validate(username.value, [required(), length({min: 5, max: 16})]);
     });
 
     const password = ref('password');
@@ -55,37 +55,50 @@ export default defineComponent({
       return validate(password.value, [required(), length({min: 16, max: 32})]);
     });
 
-    // should really be an error message returned from the backend,
-    // which we'd just display in case of an error
-    const signupStatus = ref(<Status>{
+    const signinStatus = ref(<Status>{
         valid: true,
-        message: 'Username not available!',
+        message: undefined,
     });
 
     const submit = async (e: Event) => {
         if (!usernameStatus.value.valid || !passwordStatus.value.valid) {
+            console.log('Username or password not valid!');
             return;
         }
+        signinStatus.value.valid = true;
 
-        const newUser: User = {
+        const existingUser: User = {
             id: '-1',
             username: username.value,
             password: password.value,
         }
 
-        if (!store.usernameAvailable(newUser.username)) {
-          signupStatus.value.valid = false;
-          console.log(`Username ${newUser.username} not available!`);
-          return;
+        store.getState().authors.all.forEach(a => {
+            if (a.username === username.value) {
+                existingUser.id = a.id;
+            }
+        });
+
+        if (existingUser.id === '-1') {
+            signinStatus.value.message = 'User does not exist';
+            signinStatus.value.valid = false;
+            console.log(`${signinStatus.value.message}`);
+            return;
         }
 
-        await store.createUser(newUser);
-        modal.hideModal();
-        // reset form
-        username.value = 'username';
-        password.value = 'password';
-        signupStatus.value.valid = true;
-
+        await store.signInUser(existingUser);
+        if (store.getState().authors.currentUserId === existingUser.id) {
+            // successful login
+            console.log('Login successful!');
+            modal.hideModal();
+            // reset form
+            username.value = 'username';
+            password.value = 'password';
+        } else {
+            signinStatus.value.message = "Password incorrect";
+            signinStatus.value.valid = false;
+            console.log(`${signinStatus.value.message}`);
+        }
     };
 
     return {
@@ -93,7 +106,7 @@ export default defineComponent({
       usernameStatus,
       password,
       passwordStatus,
-      signupStatus,
+      signinStatus,
       submit,
     }
   }

@@ -13,7 +13,9 @@
   <section class="section">
     <div class="container">
       <Navbar />
-      <router-view />
+      <div id="mainContent">
+        <router-view />
+      </div>
     </div>
   </section>
 </template>
@@ -21,14 +23,12 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue';
 import Navbar from './components/Navbar.vue';
-import Signup from './components/Signup.vue';
 import { useModal } from './useModal';
 
 export default defineComponent({
   name: 'App',
   components: {
     Navbar,
-    Signup,
 },
 
   setup() {
@@ -57,5 +57,9 @@ export default defineComponent({
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+#mainContent {
+  padding-top: .75rem;
 }
 </style>

@@ -6,7 +6,13 @@
   >
     <div class="is-flex is-flex-direction-column is-align-items-flex-start">
       <a>{{ post.title }}</a>
-      <div>{{ post.created.format('Do MMM') }}</div>
+      <div>
+        <time :datetime="post.created.format('YYYY-MM-DDTHH:mm:SSSZ')">
+        {{post.created.format('MMM Do HH:mm:ssA')}}
+        </time>
+        by @{{getAuthor(post.authorId) || '<deleted>'}}
+        <!-- <p>{{post.markdown?.substr(0, 15)}}{{post.markdown && post.markdown.length > 16 ? '...': ''}}</p> -->
+      </div>
     </div>
   </router-link>
 </template>
@@ -14,6 +20,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { Post } from '@/mocks';
+import { useStore } from '@/store';
 
 export default defineComponent({
   name: 'TimelinePost',
@@ -26,8 +33,10 @@ export default defineComponent({
   },
 
   setup(props) {
+    const store = useStore();
     return {
-      to: `/posts/${props.post.id}`
+      to: `/posts/${props.post.id}`,
+      getAuthor: (id: string) => store.getState().authors.all.get(id)?.username
     }
   },
 });

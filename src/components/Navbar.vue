@@ -1,5 +1,5 @@
 <template>
-    <div class="navbar">
+    <nav class="navbar" role="navigation">
         <div class="navbar-end">
             <div
                 class="buttons"
@@ -37,7 +37,7 @@
                 </button>
             </div>
         </div>
-    </div>
+    </nav>
 
     <teleport to="#modal">
         <component :is="component" />
@@ -47,8 +47,10 @@
 <script lang="ts">
 import { computed, defineComponent, markRaw } from 'vue';
 import { useModal } from '../useModal';
+import Signin from './Signin.vue';
 import Signup from './Signup.vue';
 import { useStore } from '../store';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'Navbar',
@@ -59,13 +61,20 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const modal = useModal();
+    const router = useRouter();
 
     const auth = computed(() => {
         return !!store.getState().authors.currentUserId;
     });
 
-    const signIn = () => {};
-    const signOut = () => {};
+    const signIn = () => {
+        modal.component.value = markRaw(Signin);
+        modal.showModal();
+    };
+    const signOut = () => {
+        store.signOut();
+        router.push('/');
+    };
     const signUp = () => {
         modal.component.value = markRaw(Signup);
         modal.showModal();
@@ -81,3 +90,9 @@ export default defineComponent({
   }
 });
 </script>
+
+<style>
+/* .navbar {
+    padding: 1rem;
+} */
+</style>
